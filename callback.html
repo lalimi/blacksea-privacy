@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>BlackSea Threads Authorization</title>
+<style>
+  :root { --bg:#fbfaf7; --fg:#1d1d1b; --muted:#5f5e5a; --line:#e4e1d8; --accent:#1f6f6b; --err:#a3372b; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#141413; --fg:#ecebe6; --muted:#a8a69f; --line:#2c2b28; --accent:#6cc3bc; --err:#e58b7f; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg);
+         font:16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  main { max-width:560px; margin:0 auto; padding:64px 16px; }
+  h1 { font-size:24px; margin:0 0 8px; }
+  p { color:var(--muted); margin:0 0 20px; }
+  code { display:block; padding:14px 16px; border:1px solid var(--line); border-radius:8px;
+         font:14px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; word-break:break-all;
+         color:var(--fg); margin-bottom:12px; }
+  button { font:inherit; font-weight:600; padding:10px 18px; border-radius:8px; border:0;
+           background:var(--accent); color:var(--bg); cursor:pointer; }
+  .err { color:var(--err); }
+</style>
+</head>
+<body>
+<main id="app">
+  <h1>BlackSea — Threads authorization</h1>
+  <p>Reading the authorization response…</p>
+</main>
+<script>
+  const q = new URLSearchParams(location.search);
+  const app = document.getElementById("app");
+  const code = (q.get("code") || "").replace(/#_$/, "");
+  if (code) {
+    app.innerHTML =
+      '<h1>Access granted</h1>' +
+      '<p>Copy this authorization code and paste it into the BlackSea tool to finish connecting the account.</p>' +
+      '<code id="c"></code><button id="b">Copy code</button>';
+    document.getElementById("c").textContent = code;
+    document.getElementById("b").onclick = async () => {
+      try { await navigator.clipboard.writeText(code); document.getElementById("b").textContent = "Copied"; }
+      catch (e) { document.getElementById("b").textContent = "Select and copy manually"; }
+    };
+  } else {
+    const err = q.get("error_description") || q.get("error") || "No authorization code in the address.";
+    app.innerHTML = '<h1 class="err">Authorization did not complete</h1><p id="e"></p>';
+    document.getElementById("e").textContent = err;
+  }
+</script>
+</body>
+</html>
